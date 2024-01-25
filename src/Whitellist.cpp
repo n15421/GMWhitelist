@@ -109,7 +109,14 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
     handleWhitelist(source, strUuid, realName);
 }
 
-LL_AUTO_STATIC_HOOK(FuckVanillaCmd, ll::memory::HookPriority::Normal, "?setup@AllowListCommand@@SAXAEAVCommandRegistry@@AEAVAllowListFile@@@Z", void, class CommandRegistry& registry, class AllowListFile&) {
+LL_AUTO_STATIC_HOOK(
+    FuckVanillaCmd,  // Vinalla Command Registry
+    ll::memory::HookPriority::Normal, 
+    "?setup@AllowListCommand@@SAXAEAVCommandRegistry@@AEAVAllowListFile@@@Z", 
+    void, 
+    class CommandRegistry& registry, 
+    class AllowListFile&
+) {
     return;
 }
 
@@ -118,4 +125,14 @@ void unloadPlugin() {
     auto registry = ll::service::getCommandRegistry();
     registry->unregisterCommand("whitelist");
     delete Config;
+}
+
+LL_AUTO_TYPE_INSTANCE_HOOK(
+    DisableVanillaAllowlist, // server.properties
+    ll::memory::HookPriority::Normal,
+    PropertiesSettings,
+    "?useAllowList@PropertiesSettings@@QEBA_NXZ",
+    bool
+) {
+    return false;
 }

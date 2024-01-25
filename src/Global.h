@@ -11,6 +11,7 @@
 #include <mc/certificates/ExtendedCertificate.h>
 #include <mc/network/ServerNetworkHandler.h>
 #include <mc/network/packet/LoginPacket.h>
+#include <mc/server/common/PropertiesSettings.h>
 #include <mc/server/common/commands/AllowListCommand.h>
 #include <mc/world/actor/player/Player.h>
 #include <mc/world/level/Level.h>
