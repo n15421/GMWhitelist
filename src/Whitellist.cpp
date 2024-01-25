@@ -82,10 +82,8 @@ void showWhitelist(CommandOutput& output) {
     if (mWhiteList.empty()) {
         return output.success(tr("command.whitelist.noInfo"));
     }
-    for (auto& key : mWhiteList) {
-        auto info = mWhiteList.dump(4);
-        output.success(info);
-    }
+    auto info = mWhiteList.dump(4);
+    return output.success(info);
 }
 
 LL_AUTO_TYPE_INSTANCE_HOOK(
