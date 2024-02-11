@@ -16,6 +16,7 @@ extern void initDataFile();
 extern void showWhitelist(CommandOutput& output);
 extern void initConfigFile();
 extern void RegisterCommands();
+extern void listenEvent();
 
 extern bool addPlayer(std::string& name);
 extern bool removePlayer(std::string& name);

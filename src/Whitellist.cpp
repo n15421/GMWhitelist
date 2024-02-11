@@ -1,5 +1,4 @@
 #include "Global.h"
-#include <GMLIB/Server/UserCache.h>
 
 nlohmann::json mWhiteList;
 
@@ -69,15 +68,6 @@ bool removePlayer(std::string& name) {
     return false;
 }
 
-void handleWhitelist(NetworkIdentifier const& source, std::string& uuid, std::string& realName) {
-    if (isInWhitelist(uuid) || isInWhitelist(realName)) {
-        return;
-    }
-    auto msg = tr("disconnect.notAllowed");
-    ll::service::getServerNetworkHandler()
-        ->disconnectClient(source, Connection::DisconnectFailReason::Kicked, msg, false);
-}
-
 void showWhitelist(CommandOutput& output) {
     if (mWhiteList.empty()) {
         return output.success(tr("command.whitelist.noInfo"));
@@ -86,27 +76,19 @@ void showWhitelist(CommandOutput& output) {
     return output.success(info);
 }
 
-LL_AUTO_TYPE_INSTANCE_HOOK(
-    PlayerLoginHook,
-    ll::memory::HookPriority::Normal,
-    ServerNetworkHandler,
-    "?handle@ServerNetworkHandler@@UEAAXAEBVNetworkIdentifier@@AEBVLoginPacket@@@Z",
-    void,
-    class NetworkIdentifier const& source,
-    class LoginPacket const&       packet
-) {
-    origin(source, packet);
-    auto cert       = packet.mConnectionRequest->getCertificate();
-    auto uuid       = ExtendedCertificate::getIdentity(*cert);
-    auto clientXuid = ExtendedCertificate::getXuid(*cert, true);
-    auto realName   = ExtendedCertificate::getIdentityName(*cert);
-    if (clientXuid.empty()) {
-        std::string msg = tr("disconnect.clientNotAuth");
-        ll::service::getServerNetworkHandler()
-            ->disconnectClient(source, Connection::DisconnectFailReason::Kicked, msg, false);
-    }
-    auto strUuid = uuid.asString();
-    handleWhitelist(source, strUuid, realName);
+void listenEvent() {
+    auto& eventBus = ll::event::EventBus::getInstance();
+    eventBus.emplaceListener<GMLIB::Event::PlayerEvent::PlayerLoginAfterEvent>(
+        [](GMLIB::Event::PlayerEvent::PlayerLoginAfterEvent& event) {
+            auto uuid     = event.getUuid().asString();
+            auto realName = event.getRealName();
+            if (!isInWhitelist(uuid) && !isInWhitelist(realName)) {
+                auto msg = tr("disconnect.notAllowed");
+                event.disConnectClient(msg);
+            }
+        },
+        ll::event::EventPriority::Lowest
+    );
 }
 
 LL_AUTO_STATIC_HOOK(
