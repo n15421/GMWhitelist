@@ -120,13 +120,6 @@ LL_AUTO_STATIC_HOOK(
     return;
 }
 
-void unloadPlugin() {
-    ll::memory::HookRegistrar<PlayerLoginHook>().unhook();
-    auto registry = ll::service::getCommandRegistry();
-    registry->unregisterCommand("whitelist");
-    delete Config;
-}
-
 LL_AUTO_TYPE_INSTANCE_HOOK(
     DisableVanillaAllowlist, // server.properties
     ll::memory::HookPriority::Normal,

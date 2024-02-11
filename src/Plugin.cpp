@@ -21,7 +21,6 @@ bool Plugin::enable() {
 
 bool Plugin::disable() {
     // Code for disabling the plugin goes here.
-    unloadPlugin();
     logger.info("GMWhitelist Unloaded!");
     return true;
 }

@@ -1,74 +1,61 @@
 #include "Global.h"
 
-void RegWhitelistCmd(CommandRegistry& registry) {
-    auto command = DynamicCommand::createCommand(
-        registry,
+struct WhitelistParam {
+    enum class Action { add, remove } action;
+    std::string name;
+    enum class Reload { reload } reload;
+    enum class List { list } list;
+};
+
+void RegWhitelistCmd() {
+    auto& cmd = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
         "whitelist",
         tr("command.whitelist.desc"),
         (CommandPermissionLevel)commandPermissionLevel
     );
-    command->setAlias("allowlist");
-    command->setEnum("Action", {"add", "remove"});
-    command->setEnum("Reload", {"reload"});
-    command->setEnum("List", {"list"});
-    command->mandatory(
-        "action",
-        DynamicCommand::ParameterType::Enum,
-        "Action",
-        CommandParameterOption::EnumAutocompleteExpansion
-    );
-    command->mandatory(
-        "reload",
-        DynamicCommand::ParameterType::Enum,
-        "Reload",
-        CommandParameterOption::EnumAutocompleteExpansion
-    );
-    command->mandatory(
-        "list",
-        DynamicCommand::ParameterType::Enum,
-        "List",
-        CommandParameterOption::EnumAutocompleteExpansion
-    );
-    command->mandatory("player", DynamicCommand::ParameterType::String);
-    command->addOverload({"action", "player"});
-    command->addOverload({"list"});
-    command->addOverload({"reload"});
-    command->setCallback([](DynamicCommand const&                                    command,
-                            CommandOrigin const&                                     origin,
-                            CommandOutput&                                           output,
-                            std::unordered_map<std::string, DynamicCommand::Result>& result) {
-        auto type = origin.getOriginType();
-        if (type == CommandOriginType::DedicatedServer || type == CommandOriginType::Player) {
-            if (result["action"].isSet) {
-                auto action = result["action"].get<std::string>();
-                auto player = result["player"].get<std::string>();
-                if (action == "add") {
+    ll::service::getCommandRegistry()->registerAlias("whitelist", "allowlist");
+    cmd.overload<WhitelistParam>()
+        .required("action")
+        .required("name")
+        .execute<[](CommandOrigin const& origin, CommandOutput& output, WhitelistParam const& param) {
+            auto type = origin.getOriginType();
+            if (type == CommandOriginType::DedicatedServer || type == CommandOriginType::Player) {
+                auto player = param.name;
+                if (magic_enum::enum_name(param.action) == "add") {
                     auto res = addPlayer(player);
                     if (res) {
                         return output.success(tr("command.whitelist.addSuccess", {player}));
                     }
                     return output.error(tr("command.whitelist.isInWhitelist", {player}));
+                } else {
+                    auto res = removePlayer(player);
+                    if (res) {
+                        return output.success(tr("command.whitelist.removeSuccess", {player}));
+                    }
+                    return output.error(tr("command.whitelist.notInWhitelist", {player}));
                 }
-                auto res = removePlayer(player);
-                if (res) {
-                    return output.success(tr("command.whitelist.removeSuccess", {player}));
-                }
-                return output.error(tr("command.whitelist.notInWhitelist", {player}));
             }
-            if (result["list"].isSet) {
-                return showWhitelist(output);
-            }
-            if (result["reload"].isSet) {
+            return output.error(tr("command.error.invalidCommandOrigin"));
+        }>();
+    cmd.overload<WhitelistParam>()
+        .required("reload")
+        .execute<[](CommandOrigin const& origin, CommandOutput& output, WhitelistParam const& param) {
+            auto type = origin.getOriginType();
+            if (type == CommandOriginType::DedicatedServer || type == CommandOriginType::Player) {
                 initDataFile();
                 return output.success(tr("command.whitelist.reload"));
             }
-        }
-        return output.error(tr("command.error.invalidCommandOrigin"));
-    });
-    DynamicCommand::setup(registry, std::move(command));
+            return output.error(tr("command.error.invalidCommandOrigin"));
+        }>();
+    cmd.overload<WhitelistParam>()
+        .required("list")
+        .execute<[](CommandOrigin const& origin, CommandOutput& output, WhitelistParam const& param) {
+            auto type = origin.getOriginType();
+            if (type == CommandOriginType::DedicatedServer || type == CommandOriginType::Player) {
+                return showWhitelist(output);
+            }
+            return output.error(tr("command.error.invalidCommandOrigin"));
+        }>();
 }
 
-void RegisterCommands() {
-    auto registry = ll::service::getCommandRegistry();
-    RegWhitelistCmd(registry);
-}
+void RegisterCommands() { RegWhitelistCmd(); }

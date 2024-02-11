@@ -1,17 +1,18 @@
 #include "Language.h"
 #include "Global.h"
 
-GMLIB::Files::JsonConfig* Config = nullptr;
-nlohmann::json            Language;
-int                       commandPermissionLevel = 4;
+GMLIB::Files::JsonConfig*   Config                 = nullptr;
+GMLIB::Files::LangLanguage* Language               = nullptr;
+int                         commandPermissionLevel = 4;
 
 void initConfigFile() {
     Config = new GMLIB::Files::JsonConfig("./plugins/GMWhitelist/config/config.json", defaultConfig);
     Config->initConfig();
-    std::string langPath = "./plugins/GMWhitelist/language/{language}.json";
+    std::string langPath = "./plugins/GMWhitelist/language/{language}.lang";
     std::string language = Config->getValue<std::string>({"language"}, "zh_CN");
     ll::utils::string_utils::replaceAll(langPath, "{language}", language);
-    Language               = GMLIB::Files::JsonLanguage::initLanguage(langPath, defaultLanguage);
+    Language = new GMLIB::Files::LangLanguage(langPath, defaultLanguage);
+    Language->init();
     commandPermissionLevel = Config->getValue<int>({"CommandPermissionLevel"}, 4);
     if (commandPermissionLevel < 0 || commandPermissionLevel > 4) {
         Config->setValue<int>({"CommandPermissionLevel"}, 4);
@@ -23,6 +24,4 @@ void initConfigFile() {
     initDataFile();
 }
 
-std::string tr(std::string key, std::vector<std::string> data) {
-    return GMLIB::Files::JsonLanguage::translate(Language, key, data);
-}
+std::string tr(std::string key, std::vector<std::string> data) { return Language->translate(key, data); }
