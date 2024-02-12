@@ -1,18 +1,20 @@
-#include "Language.h"
+#include "Config.h"
 #include "Global.h"
+#include "Language.h"
 
-GMLIB::Files::JsonConfig*   Config                 = nullptr;
-GMLIB::Files::LangLanguage* Language               = nullptr;
-int                         commandPermissionLevel = 4;
+GMLIB::Files::JsonConfig*     Config                 = nullptr;
+GMLIB::Files::I18n::LangI18n* Language               = nullptr;
+int                           commandPermissionLevel = 4;
 
-void initConfigFile() {
+void initPlugin() {
     Config = new GMLIB::Files::JsonConfig("./plugins/GMWhitelist/config/config.json", defaultConfig);
-    Config->initConfig();
-    std::string langPath = "./plugins/GMWhitelist/language/{language}.lang";
+    Config->init();
+    std::string langPath = "./plugins/GMWhitelist/language/";
     std::string language = Config->getValue<std::string>({"language"}, "zh_CN");
-    ll::utils::string_utils::replaceAll(langPath, "{language}", language);
-    Language = new GMLIB::Files::LangLanguage(langPath, defaultLanguage);
-    Language->init();
+    Language             = new GMLIB::Files::I18n::LangI18n(langPath, language);
+    Language->loadLanguage("en_US", defaultLanguage_en_US);
+    Language->loadLanguage("zh_CN", defaultLanguage_zh_CN);
+    Language->chooseLanguage(language);
     commandPermissionLevel = Config->getValue<int>({"CommandPermissionLevel"}, 4);
     if (commandPermissionLevel < 0 || commandPermissionLevel > 4) {
         Config->setValue<int>({"CommandPermissionLevel"}, 4);

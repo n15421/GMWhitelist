@@ -70,10 +70,20 @@ bool removePlayer(std::string& name) {
 
 void showWhitelist(CommandOutput& output) {
     if (mWhiteList.empty()) {
-        return output.success(tr("command.whitelist.noInfo"));
+        return output.error(tr("command.whitelist.noInfo"));
     }
-    auto info = mWhiteList.dump(4);
-    return output.success(info);
+    output.success(tr("command.whitelist.showInfo"));
+    for (auto info : mWhiteList) {
+        std::string uuid;
+        if (info.contains("uuid")) {
+            uuid = info["uuid"].get<std::string>();
+        }
+        std::string name;
+        if (info.contains("name")) {
+            name = info["name"].get<std::string>();
+        }
+        output.success(tr("command.whitelist.whitelistInfo", {name, uuid}));
+    }
 }
 
 void listenEvent() {

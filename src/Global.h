@@ -14,7 +14,7 @@ extern std::string tr(std::string key, std::vector<std::string> data = {});
 
 extern void initDataFile();
 extern void showWhitelist(CommandOutput& output);
-extern void initConfigFile();
+extern void initPlugin();
 extern void RegisterCommands();
 extern void listenEvent();
 
