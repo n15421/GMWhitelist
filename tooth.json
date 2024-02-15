@@ -8,11 +8,11 @@
         "author": "GroupMountain Team",
         "source": "github.com/GroupMountain/GMWhitelist",
         "tags": [
-            "LeveLamina",
+            "LeviLamina",
             "Whitelist"
         ]
     },
-    "asset_url": "https://github.com/GroupMountain/GMWhitelist/releases/download/v0.8.0/GMWhitelist.zip",
+    "asset_url": "https://github.com/GroupMountain/GMWhitelist/releases/download/v0.8.0/GMWhitelist-windows-x64.zip",
     "dependencies": {
         "github.com/GroupMountain/GMLIB": ">=0.8.0"
     },
