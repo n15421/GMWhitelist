@@ -9,12 +9,13 @@ int                           commandPermissionLevel = 4;
 void initPlugin() {
     Config = new GMLIB::Files::JsonConfig("./plugins/GMWhitelist/config/config.json", defaultConfig);
     Config->init();
-    std::string langPath = "./plugins/GMWhitelist/language/";
-    std::string language = Config->getValue<std::string>({"language"}, "en_US");
-    Language             = new GMLIB::Files::I18n::LangI18n(langPath, language);
-    Language->loadLanguage("en_US", defaultLanguage_en_US);
-    Language->loadLanguage("zh_CN", defaultLanguage_zh_CN);
-    Language->chooseLanguage(language);
+    std::string langPath     = "./plugins/GMWhitelist/language/";
+    std::string languageCode = Config->getValue<std::string>({"language"}, "en_US");
+    Language                 = new GMLIB::Files::I18n::LangI18n(langPath, languageCode);
+    Language->updateOrCreateLanguage("en_US", defaultLanguage_en_US);
+    Language->updateOrCreateLanguage("zh_CN", defaultLanguage_zh_CN);
+    Language->loadAllLanguages();
+    Language->chooseLanguage(languageCode);
     commandPermissionLevel = Config->getValue<int>({"CommandPermissionLevel"}, 4);
     if (commandPermissionLevel < 0 || commandPermissionLevel > 4) {
         Config->setValue<int>({"CommandPermissionLevel"}, 4);
