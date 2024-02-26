@@ -12,19 +12,38 @@ void initDataFile() {
     mWhiteList     = GMLIB::Files::JsonFile::initJson("./whitelist.json", emptyFile);
 }
 
-bool isInWhitelist(std::string& info) {
+bool isInWhitelist(std::string& uuid, std::string& name) {
     for (auto& key : mWhiteList) {
         if (key.contains("uuid")) {
-            if (key["uuid"] == info) {
+            if (key["uuid"] == uuid) {
                 return true;
             }
         } else {
-            if (key["name"] == info) {
-                auto data = GMLIB::Server::UserCache::tryFindCahceInfoFromName(info);
-                if (data.has_value()) {
-                    key["uuid"] = data.value().at("uuid");
-                    saveWhitelistFile();
-                }
+            if (key["name"] == name) {
+                key["uuid"] = uuid;
+                saveWhitelistFile();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool isNameInWhitelist(std::string& name) {
+    for (auto& key : mWhiteList) {
+        if (key.contains("name")) {
+            if (key["name"] == name) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool isUuidInWhitelist(std::string& uuid) {
+    for (auto& key : mWhiteList) {
+        if (key.contains("uuid")) {
+            if (key["uuid"] == uuid) {
                 return true;
             }
         }
@@ -33,18 +52,10 @@ bool isInWhitelist(std::string& info) {
 }
 
 bool addPlayer(std::string& name) {
-    if (isInWhitelist(name)) {
+    if (isNameInWhitelist(name)) {
         return false;
     }
-    auto info = GMLIB::Server::UserCache::tryFindCahceInfoFromName(name);
-    auto key  = nlohmann::json::object();
-    if (info.has_value()) {
-        auto cacheUuid = info.value()["uuid"].get<std::string>();
-        if (isInWhitelist(cacheUuid)) {
-            return false;
-        }
-        key["uuid"] = cacheUuid;
-    }
+    auto key    = nlohmann::json::object();
     key["name"] = name;
     mWhiteList.push_back(key);
     saveWhitelistFile();
@@ -88,16 +99,16 @@ void showWhitelist(CommandOutput& output) {
 
 void listenEvent() {
     auto& eventBus = ll::event::EventBus::getInstance();
-    eventBus.emplaceListener<GMLIB::Event::PlayerEvent::PlayerLoginAfterEvent>(
-        [](GMLIB::Event::PlayerEvent::PlayerLoginAfterEvent& event) {
+    eventBus.emplaceListener<GMLIB::Event::PacketEvent::ClientLoginAfterEvent>(
+        [](GMLIB::Event::PacketEvent::ClientLoginAfterEvent& event) {
             auto uuid     = event.getUuid().asString();
             auto realName = event.getRealName();
-            if (!isInWhitelist(uuid) && !isInWhitelist(realName)) {
+            if (!isInWhitelist(uuid, realName)) {
                 auto msg = tr("disconnect.notAllowed");
                 event.disConnectClient(msg);
             }
         },
-        ll::event::EventPriority::Lowest
+        ll::event::EventPriority::High
     );
 }
 
