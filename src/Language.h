@@ -16,6 +16,7 @@ std::string defaultLanguage_en_US = R"(
     command.error.invalidCommandOrigin=This command can only be executed by the player or the console!
     command.whitelist.showInfo=Whitelist Info:
     command.whitelist.whitelistInfo=Player ID: %1$s , UUID: %2$s
+    error.fileIsBroken=File %1$s is broken! Trying to generate a new one.
 )";
 
 std::string defaultLanguage_zh_CN = R"(
@@ -33,4 +34,5 @@ std::string defaultLanguage_zh_CN = R"(
     command.error.invalidCommandOrigin=该命令只能由玩家或控制台执行！
     ommand.whitelist.showInfo=服务器白名单信息如下：
     command.whitelist.whitelistInfo=玩家ID: %1$s , UUID: %2$s
+    error.fileIsBroken=文件 %1$s 已损坏！正在重新生成文件！
 )";

@@ -9,7 +9,13 @@ void saveWhitelistFile() {
 
 void initDataFile() {
     auto emptyFile = nlohmann::json::array();
-    mWhiteList     = GMLIB::Files::JsonFile::initJson("./whitelist.json", emptyFile);
+    try {
+        mWhiteList = GMLIB::Files::JsonFile::initJson("./whitelist.json", emptyFile);
+    } catch (...) {
+        mWhiteList = emptyFile;
+        logger.error(tr("error.fileIsBroken", {"'whitelist.json'"}));
+        saveWhitelistFile();
+    }
 }
 
 bool isInWhitelist(std::string& uuid, std::string& name) {
