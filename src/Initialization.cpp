@@ -27,4 +27,4 @@ void initPlugin() {
     initDataFile();
 }
 
-std::string tr(std::string key, std::vector<std::string> data) { return Language->translate(key, data); }
+std::string tr(std::string const& key, std::vector<std::string> const& data) { return Language->translate(key, data); }

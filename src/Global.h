@@ -8,7 +8,7 @@ extern ll::Logger logger;
 
 extern int commandPermissionLevel;
 
-extern std::string tr(std::string key, std::vector<std::string> data = {});
+extern std::string tr(std::string const& key, std::vector<std::string> const& data = {});
 
 extern void initDataFile();
 extern void showWhitelist(CommandOutput& output);
@@ -16,5 +16,5 @@ extern void initPlugin();
 extern void RegisterCommands();
 extern void listenEvent();
 
-extern bool addPlayer(std::string& name);
-extern bool removePlayer(std::string& name);
+extern bool addPlayer(std::string const& name);
+extern bool removePlayer(std::string const& name);
