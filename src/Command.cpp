@@ -3,8 +3,6 @@
 struct WhitelistParam {
     enum class Action { add, remove } action;
     std::string name;
-    enum class Reload { reload } reload;
-    enum class List { list } list;
 };
 
 void RegWhitelistCmd() {
@@ -38,7 +36,7 @@ void RegWhitelistCmd() {
             return output.error(tr("command.error.invalidCommandOrigin"));
         }>();
     cmd.overload<WhitelistParam>()
-        .required("reload")
+        .text("reload")
         .execute<[](CommandOrigin const& origin, CommandOutput& output, WhitelistParam const& param) {
             auto type = origin.getOriginType();
             if (type == CommandOriginType::DedicatedServer || type == CommandOriginType::Player) {
@@ -48,7 +46,7 @@ void RegWhitelistCmd() {
             return output.error(tr("command.error.invalidCommandOrigin"));
         }>();
     cmd.overload<WhitelistParam>()
-        .required("list")
+        .text("list")
         .execute<[](CommandOrigin const& origin, CommandOutput& output, WhitelistParam const& param) {
             auto type = origin.getOriginType();
             if (type == CommandOriginType::DedicatedServer || type == CommandOriginType::Player) {

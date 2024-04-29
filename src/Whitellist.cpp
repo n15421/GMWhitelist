@@ -1,83 +1,93 @@
 #include "Global.h"
 
-nlohmann::json mWhiteList;
+// nlohmann::json mWhiteList;
+
+std::unordered_map<mce::UUID, std::string> mWhiteListMap;
+std::unordered_set<std::string>            mNameCache;
 
 void saveWhitelistFile() {
-    std::string path = "./whitelist.json";
-    GMLIB::Files::JsonFile::writeFile(path, mWhiteList);
+    std::string    path = "./whitelist.json";
+    nlohmann::json data;
+    for (auto& [uuid, name] : mWhiteListMap) {
+        auto info    = nlohmann::json::object();
+        info["uuid"] = uuid.asString();
+        info["name"] = name;
+        data.push_back(info);
+    }
+    for (auto& name : mNameCache) {
+        auto info    = nlohmann::json::object();
+        info["name"] = name;
+        data.push_back(info);
+    }
+    GMLIB::Files::JsonFile::writeFile(path, data);
 }
 
 void initDataFile() {
-    auto emptyFile = nlohmann::json::array();
-    try {
-        mWhiteList = GMLIB::Files::JsonFile::initJson("./whitelist.json", emptyFile);
-    } catch (...) {
-        mWhiteList = emptyFile;
-        logger.error(tr("error.fileIsBroken", {"'whitelist.json'"}));
-        saveWhitelistFile();
-    }
-}
-
-bool isInWhitelist(std::string& uuid, std::string& name) {
-    for (auto& key : mWhiteList) {
-        if (key.contains("uuid")) {
-            if (key["uuid"] == uuid) {
-                return true;
-            }
+    auto data = GMLIB::Files::JsonFile::initJson("./whitelist.json", nlohmann::json::array());
+    for (auto& info : data) {
+        if (info.contains("name")) {
+            std::string uuid                           = info["uuid"];
+            mWhiteListMap[mce::UUID::fromString(uuid)] = info["name"];
         } else {
-            if (key["name"] == name) {
-                key["uuid"] = uuid;
-                saveWhitelistFile();
-                return true;
-            }
+            mNameCache.insert(info["name"]);
+        }
+    }
+}
+
+bool isInWhitelist(mce::UUID const& uuid, std::string const& name) {
+    if (mWhiteListMap.contains(uuid)) {
+        if (mWhiteListMap[uuid] != name) {
+            mWhiteListMap[uuid] = name;
+            saveWhitelistFile();
+        }
+        return true;
+    }
+    if (mNameCache.contains(name)) {
+        mWhiteListMap[uuid] = name;
+        mNameCache.erase(name);
+        saveWhitelistFile();
+        return true;
+    }
+    return false;
+}
+
+bool isNameInWhitelist(std::string const& name) {
+    if (mNameCache.contains(name)) {
+        return true;
+    }
+    for (auto& [uuid, playername] : mWhiteListMap) {
+        if (playername == name) {
+            return true;
         }
     }
     return false;
 }
 
-bool isNameInWhitelist(std::string& name) {
-    for (auto& key : mWhiteList) {
-        if (key.contains("name")) {
-            if (key["name"] == name) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-bool isUuidInWhitelist(std::string& uuid) {
-    for (auto& key : mWhiteList) {
-        if (key.contains("uuid")) {
-            if (key["uuid"] == uuid) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-bool addPlayer(std::string& name) {
+bool addPlayer(std::string const& name) {
     if (isNameInWhitelist(name)) {
         return false;
     }
-    auto key    = nlohmann::json::object();
-    key["name"] = name;
-    mWhiteList.push_back(key);
+    mNameCache.insert(name);
     saveWhitelistFile();
     return true;
 }
 
-bool removePlayer(std::string& name) {
+bool removePlayer(std::string const& name) {
     auto pl = ll::service::getLevel()->getPlayer(name);
     if (pl) {
         auto msg = tr("disconnect.notAllowed");
         pl->disconnect(msg);
     }
-    for (auto it = mWhiteList.begin(); it != mWhiteList.end(); ++it) {
-        if (it.value().at("name") == name) {
-            mWhiteList.erase(it);
-            --it;
+    for (auto& [uuid, playername] : mWhiteListMap) {
+        if (playername == name) {
+            mWhiteListMap.erase(uuid);
+            saveWhitelistFile();
+            return true;
+        }
+    }
+    for (auto& playername : mNameCache) {
+        if (playername == name) {
+            mWhiteListMap.erase(name);
             saveWhitelistFile();
             return true;
         }
@@ -86,20 +96,15 @@ bool removePlayer(std::string& name) {
 }
 
 void showWhitelist(CommandOutput& output) {
-    if (mWhiteList.empty()) {
+    if (mWhiteListMap.empty()) {
         return output.error(tr("command.whitelist.noInfo"));
     }
     output.success(tr("command.whitelist.showInfo"));
-    for (auto info : mWhiteList) {
-        std::string uuid;
-        if (info.contains("uuid")) {
-            uuid = info["uuid"].get<std::string>();
-        }
-        std::string name;
-        if (info.contains("name")) {
-            name = info["name"].get<std::string>();
-        }
-        output.success(tr("command.whitelist.whitelistInfo", {name, uuid}));
+    for (auto& [uuid, name] : mWhiteListMap) {
+        output.success(tr("command.whitelist.whitelistInfo", {name, uuid.asString()}));
+    }
+    for (auto& name : mNameCache) {
+        output.success(tr("command.whitelist.whitelistInfo", {name, ""}));
     }
 }
 
@@ -107,7 +112,7 @@ void listenEvent() {
     auto& eventBus = ll::event::EventBus::getInstance();
     eventBus.emplaceListener<GMLIB::Event::PacketEvent::ClientLoginAfterEvent>(
         [](GMLIB::Event::PacketEvent::ClientLoginAfterEvent& event) {
-            auto uuid     = event.getUuid().asString();
+            auto uuid     = event.getUuid();
             auto realName = event.getRealName();
             if (!isInWhitelist(uuid, realName)) {
                 auto msg = tr("disconnect.notAllowed");

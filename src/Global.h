@@ -6,8 +6,6 @@
 
 extern ll::Logger logger;
 
-extern nlohmann::json mWhiteList;
-
 extern int commandPermissionLevel;
 
 extern std::string tr(std::string key, std::vector<std::string> data = {});
