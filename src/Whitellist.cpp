@@ -25,7 +25,7 @@ void saveWhitelistFile() {
 void initDataFile() {
     auto data = GMLIB::Files::JsonFile::initJson("./whitelist.json", nlohmann::json::array());
     for (auto& info : data) {
-        if (info.contains("name")) {
+        if (info.contains("uuid")) {
             std::string uuid                           = info["uuid"];
             mWhiteListMap[mce::UUID::fromString(uuid)] = info["name"];
         } else {
