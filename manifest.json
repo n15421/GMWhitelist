@@ -3,8 +3,8 @@
     "entry": "${pluginFile}",
     "type": "native",
     "author": "GroupMountain",
-    "description": "Group Mountain Library",
-    "version": "0.12.1",
+    "description": "Whitelist Plugin for MCBE",
+    "version": "0.12.2",
     "dependencies": [
         {
             "name": "GMLIB"

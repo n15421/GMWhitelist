@@ -87,7 +87,7 @@ bool removePlayer(std::string const& name) {
     }
     for (auto& playername : mNameCache) {
         if (playername == name) {
-            mWhiteListMap.erase(name);
+            mNameCache.erase(name);
             saveWhitelistFile();
             return true;
         }
