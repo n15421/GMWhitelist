@@ -2,7 +2,7 @@
 #include "Global.h"
 
 std::string defaultLanguage_en_US = R"(
-    disconnect.notAllowed=You are not whitelisted in this server!
+    disconnect.notAllowed=%1$s You are not whitelisted in this server!
     disconnect.clientNotAuth=The client is not logged in! \n\nTo access the server, log in to your Xbox account!
     command.whitelist.noInfo=There is nothing in the whitelist!
     command.whitelist.reload=Whitelist has been reloaded!
@@ -16,10 +16,11 @@ std::string defaultLanguage_en_US = R"(
     command.error.invalidCommandOrigin=This command can only be executed by the player or the console!
     command.whitelist.showInfo=Whitelist Info:
     command.whitelist.whitelistInfo=Player ID: %1$s , UUID: %2$s
+    logger.notAllowed=Player %1$s is not allowed to enter the server for no whitelist!
 )";
 
 std::string defaultLanguage_zh_CN = R"(
-    disconnect.notAllowed=你不在服务器白名单内！\n\n如需加入服务器，请先加入QQ群获取白名单！\n服务器QQ群：1145141919810
+    disconnect.notAllowed=%1$s 你不在服务器白名单内！\n\n如需加入服务器，请先加入QQ群获取白名单！\n服务器QQ群：1145141919810
     disconnect.clientNotAuth=客户端未登录！\n\n如需进入服务器，请登录Xbox账户！
     command.whitelist.noInfo=白名单内没有任何内容！
     command.whitelist.reload=已重载白名单！
@@ -33,4 +34,5 @@ std::string defaultLanguage_zh_CN = R"(
     command.error.invalidCommandOrigin=该命令只能由玩家或控制台执行！
     command.whitelist.showInfo=服务器白名单信息如下：
     command.whitelist.whitelistInfo=玩家ID: %1$s , UUID: %2$s
+    logger.notAllowed=玩家 %1$s 不在白名单内或白名单保存id有误,请添加白名单或重加白名单才能令其进服!
 )";

@@ -1,3 +1,4 @@
+#include "Entry.h"
 #include "Global.h"
 
 // nlohmann::json mWhiteList;
@@ -115,8 +116,11 @@ void listenEvent() {
             auto uuid     = event.getUuid();
             auto realName = event.getRealName();
             if (!isInWhitelist(uuid, realName)) {
-                auto msg = tr("disconnect.notAllowed");
+                auto msg = tr("disconnect.notAllowed",{realName});
                 event.disConnectClient(msg);
+                if(GMWhitelist::Entry::getInstance()->getConfig().ConsoleOutput){
+                    logger.info(tr("logger.notAllowed",{realName}));
+                }
             }
         },
         ll::event::EventPriority::High
