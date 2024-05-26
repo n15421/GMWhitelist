@@ -8,5 +8,5 @@ struct Config {
 
     int CommandPermissionLevel = 4;
 
-    bool ConsoleOutput = true;
+    bool ConsoleOutput = false;
 };

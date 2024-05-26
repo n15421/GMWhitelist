@@ -1,8 +1,8 @@
 #include "Entry.h"
 #include "Global.h"
 #include "Language.h"
+
 ll::Logger logger(PLUGIN_NAME);
-int        commandPermissionLevel = 4;
 
 namespace GMWhitelist {
 
@@ -19,11 +19,10 @@ bool Entry::enable() {
         ll::config::saveConfig(*mConfig, getSelf().getConfigDir() / u8"config.json");
     }
     mI18n.emplace(getSelf().getLangDir(), mConfig->language);
-    mI18n->updateOrCreateLanguage("en_US", defaultLanguage_en_US);
-    mI18n->updateOrCreateLanguage("zh_CN", defaultLanguage_zh_CN);
+    mI18n->updateOrCreateLanguage("en_US", en_US);
+    mI18n->updateOrCreateLanguage("zh_CN", zh_CN);
     mI18n->loadAllLanguages();
-    mI18n->chooseLanguage(mConfig->language);
-    commandPermissionLevel = mConfig->CommandPermissionLevel;
+    auto& commandPermissionLevel = mConfig->CommandPermissionLevel;
     if (commandPermissionLevel < 0 || commandPermissionLevel > 4) {
         mConfig->CommandPermissionLevel = 4;
         logger.error(tr("permission.error.invalidLevel"));
@@ -44,7 +43,6 @@ bool Entry::disable() {
     mConfig.reset();
     return true;
 }
-
 
 Config& Entry::getConfig() { return mConfig.value(); }
 

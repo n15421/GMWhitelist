@@ -6,13 +6,10 @@
 
 extern ll::Logger logger;
 
-extern int commandPermissionLevel;
-
 extern std::string tr(std::string const& key, std::vector<std::string> const& data = {});
 
 extern void initDataFile();
 extern void showWhitelist(CommandOutput& output);
-extern void initPlugin();
 extern void RegisterCommands();
 extern void listenEvent();
 

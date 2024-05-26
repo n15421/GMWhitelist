@@ -1,3 +1,4 @@
+#include "Entry.h"
 #include "Global.h"
 
 struct WhitelistParam {
@@ -9,7 +10,7 @@ void RegWhitelistCmd() {
     auto& cmd = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
         "whitelist",
         tr("command.whitelist.desc"),
-        (CommandPermissionLevel)commandPermissionLevel
+        (CommandPermissionLevel)GMWhitelist::Entry::getInstance()->getConfig().CommandPermissionLevel
     );
     ll::service::getCommandRegistry()->registerAlias("whitelist", "allowlist");
     cmd.overload<WhitelistParam>()

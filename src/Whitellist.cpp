@@ -1,8 +1,6 @@
 #include "Entry.h"
 #include "Global.h"
 
-// nlohmann::json mWhiteList;
-
 std::unordered_map<mce::UUID, std::string> mWhiteListMap;
 std::unordered_set<std::string>            mNameCache;
 
@@ -116,10 +114,10 @@ void listenEvent() {
             auto uuid     = event.getUuid();
             auto realName = event.getRealName();
             if (!isInWhitelist(uuid, realName)) {
-                auto msg = tr("disconnect.notAllowed",{realName});
+                auto msg = tr("disconnect.notAllowed", {realName});
                 event.disConnectClient(msg);
-                if(GMWhitelist::Entry::getInstance()->getConfig().ConsoleOutput){
-                    logger.info(tr("logger.notAllowed",{realName}));
+                if (GMWhitelist::Entry::getInstance()->getConfig().ConsoleOutput) {
+                    logger.info(tr("logger.notAllowed", {realName}));
                 }
             }
         },

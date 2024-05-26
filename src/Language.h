@@ -1,7 +1,7 @@
 #pragma once
 #include "Global.h"
 
-std::string defaultLanguage_en_US = R"(
+std::string en_US = R"(
     disconnect.notAllowed=%1$s You are not whitelisted in this server!
     disconnect.clientNotAuth=The client is not logged in! \n\nTo access the server, log in to your Xbox account!
     command.whitelist.noInfo=There is nothing in the whitelist!
@@ -19,7 +19,7 @@ std::string defaultLanguage_en_US = R"(
     logger.notAllowed=Player %1$s is not allowed to enter the server for no whitelist!
 )";
 
-std::string defaultLanguage_zh_CN = R"(
+std::string zh_CN = R"(
     disconnect.notAllowed=%1$s 你不在服务器白名单内！\n\n如需加入服务器，请先加入QQ群获取白名单！\n服务器QQ群：1145141919810
     disconnect.clientNotAuth=客户端未登录！\n\n如需进入服务器，请登录Xbox账户！
     command.whitelist.noInfo=白名单内没有任何内容！
