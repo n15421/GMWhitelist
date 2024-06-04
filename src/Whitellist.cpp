@@ -54,8 +54,8 @@ bool isNameInWhitelist(std::string const& name) {
     if (mNameCache.contains(name)) {
         return true;
     }
-    for (auto& [uuid, playername] : mWhiteListMap) {
-        if (playername == name) {
+    if (auto uuid = GMLIB::UserCache::getUuidByName(name)) {
+        if (mWhiteListMap.contains(uuid.value())) {
             return true;
         }
     }
@@ -66,7 +66,11 @@ bool addPlayer(std::string const& name) {
     if (isNameInWhitelist(name)) {
         return false;
     }
-    mNameCache.insert(name);
+    if (auto uuid = GMLIB::UserCache::getUuidByName(name)) {
+        mWhiteListMap[uuid.value()] = name;
+    } else {
+        mNameCache.insert(name);
+    }
     saveWhitelistFile();
     return true;
 }
@@ -111,6 +115,12 @@ void listenEvent() {
     auto& eventBus = ll::event::EventBus::getInstance();
     eventBus.emplaceListener<GMLIB::Event::PacketEvent::ClientLoginAfterEvent>(
         [](GMLIB::Event::PacketEvent::ClientLoginAfterEvent& event) {
+            if (event.getClientAuthXuid().empty()) {
+                return event.disConnectClient(tr("disconnect.clientNotAuth"));
+            }
+            if (event.getServerAuthXuid().empty() && ll::service::getPropertiesSettings()->useOnlineAuthentication()) {
+                return event.disConnectClient(tr("disconnectionScreen.notAuthenticated"));
+            }
             auto uuid     = event.getUuid();
             auto realName = event.getRealName();
             if (!isInWhitelist(uuid, realName)) {
